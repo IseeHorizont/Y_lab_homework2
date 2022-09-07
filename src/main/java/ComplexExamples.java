@@ -1,4 +1,7 @@
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 public class ComplexExamples {
 
@@ -31,9 +34,15 @@ public class ComplexExamples {
         public int hashCode() {
             return Objects.hash(getId(), getName());
         }
+
+        @Override
+        public String toString() {
+            return "id=" + id + ", name=" + name;
+        }
     }
 
     private static Person[] RAW_DATA = new Person[]{
+            //new Person(10, "Harry"),
             new Person(0, "Harry"),
             new Person(0, "Harry"), // дубликат
             new Person(1, "Harry"), // тёзка
@@ -99,7 +108,8 @@ public class ComplexExamples {
         Task1
             Убрать дубликаты, отсортировать по идентификатору, сгруппировать по имени
 
-            Что должно получиться Key: Amelia
+            Что должно получиться
+                Key: Amelia
                 Value:4
                 Key: Emily
                 Value:1
@@ -108,15 +118,25 @@ public class ComplexExamples {
                 Key: Jack
                 Value:1
          */
-
+        Map<String, Long> personAfterFormatting = Arrays.asList(RAW_DATA).stream()
+                .distinct()
+                .sorted(Comparator.comparing(person -> person.id))
+                .collect(Collectors.groupingBy(Person::getName, Collectors.counting()));
+        for(Map.Entry<String, Long> person : personAfterFormatting.entrySet()) {
+            System.out.println("Key: " + person.getKey() + "\nValue: " + person.getValue());
+        }
+        System.out.println();
 
 
         /*
         Task2
-
             [3, 4, 2, 7], 10 -> [3, 7] - вывести пару менно в скобках, которые дают сумму - 10
          */
-
+        int[] array = new int[]{3, 4, 2, 7};
+        int target = 10;
+        List<Integer> resultPair = getPairOfNumberByTarget(array, target);
+        System.out.println(resultPair);
+        System.out.println();
 
 
         /*
@@ -130,7 +150,43 @@ public class ComplexExamples {
                     fuzzySearch("cwheeel", "cartwheel"); // false
                     fuzzySearch("lw", "cartwheel"); // false
          */
+        System.out.println(fuzzySearch("car", "ca6$$#_rtwheel"));
+        System.out.println(fuzzySearch("cwhl", "cartwheel"));
+        System.out.println(fuzzySearch("cwhee", "cartwheel"));
+        System.out.println(fuzzySearch("cartwheel", "cartwheel"));
+        System.out.println(fuzzySearch("cwheeel", "cartwheel"));
+        System.out.println(fuzzySearch("lw", "cartwheel"));
 
+    }
 
+    // task2
+    public static List<Integer> getPairOfNumberByTarget(int[] array, int target) {
+        List<Integer> resultPair = new ArrayList<>();
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < array.length; i++) {
+            int difference = target - array[i];
+            if (map.containsKey(difference)) {
+                resultPair.addAll(Arrays.asList(difference, array[i]));
+                break;
+            }
+            map.put(array[i], difference);
+        }
+        return resultPair;
+    }
+
+    // task3
+    public static boolean fuzzySearch(String targetWord, String sourceWord) {
+        int pointerTarget = 0;
+        int pointerSource = 0;
+        while (pointerTarget < targetWord.length() && pointerSource < sourceWord.length()) {
+            if (targetWord.charAt(pointerTarget) == sourceWord.charAt(pointerSource)) {
+                pointerTarget++;
+            }
+            pointerSource++;
+        }
+        if (pointerTarget == targetWord.length()) {
+            return true;
+        }
+        return false;
     }
 }
